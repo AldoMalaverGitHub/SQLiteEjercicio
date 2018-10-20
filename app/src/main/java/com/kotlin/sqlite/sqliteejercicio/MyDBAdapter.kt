@@ -20,6 +20,10 @@ class MyDBAdapter(_context: Context) {
                 null, version)
     }
 
+    public fun open(){
+        sqLiteDatabase = mDbHelper?.writableDatabase
+    }
+
     inner class MyDBHelper(context: Context?, name: String?,
                            factory: SQLiteDatabase.CursorFactory?,
                            version:Int): SQLiteOpenHelper(context, name,

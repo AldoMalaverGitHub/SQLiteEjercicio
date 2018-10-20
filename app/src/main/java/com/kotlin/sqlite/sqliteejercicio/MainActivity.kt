@@ -8,27 +8,22 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    private var mAdapter: MyDBAdapter?= null
+    private val misFacultades = arrayOf("Ingenieria", "Negocios", "Letras")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        inicializarVistas()
+        inicializarBaseDatos()
+        loadList()
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
-
-        val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer_layout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        nav_view.setNavigationItemSelectedListener(this)
     }
 
     override fun onBackPressed() {
@@ -56,29 +51,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
-            }
-            R.id.nav_gallery -> {
-
-            }
-            R.id.nav_slideshow -> {
-
-            }
-            R.id.nav_manage -> {
-
-            }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
-            }
-        }
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun inicializarVistas(){
+        setSupportActionBar(toolbar)
+        val toogle = ActionBarDrawerToggle(this, drawer_layout,
+                toolbar, R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close)
+        toogle.syncState()
+        nav_view.setNavigationItemSelectedListener(this)
+        spinner.adapter = ArrayAdapter(this@MainActivity,
+                android.R.layout.simple_list_item_1,
+        misFacultades)
+        btnAgregar.setOnClickListener{
+            mAdapter?.insertarPersona(txtNombre.text.toString(),
+                    spinner.selectedItemPosition + 1)
+            loadList()
+        }
+        btnEliminar.setOnClickListener(){
+            mAdapter?.eliminarTodo()
+            //loadList()
+        }
+    }
+
+    private fun inicializarBaseDatos(){
+        mAdapter = MyDBAdapter(this@MainActivity)
+        mAdapter?.open()
+    }
+
+    private fun loadList(){
+        val todo: List<String>? = mAdapter?.obtenerPersonas()
+        val adapter = ArrayAdapter(this@MainActivity,
+                android.R.layout.simple_list_item_1, todo)
+        lstPersona.adapter = adapter
     }
 }
